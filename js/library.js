@@ -128,43 +128,68 @@ document.getElementById('payment-modal')?.addEventListener('click', (e) => {
 });
 
 // ---- PDF VIEWER ----
+let viewerTimer;
+
 window.openViewer = function(url, title) {
   if (!url) {
     alert('PDF URL not configured.');
     return;
   }
+  
   const modal = document.getElementById('viewer-modal');
+  const iframe = document.getElementById('pdf-iframe');
+  const loading = document.getElementById('viewer-loading');
+  const fallback = document.getElementById('viewer-fallback');
+  const fallbackLink = document.getElementById('viewer-fallback-link');
+  
   document.getElementById('viewer-title').textContent = title;
   
+  // Reset state
+  loading.style.display = 'flex';
+  fallback.style.display = 'none';
+  iframe.style.opacity = '0';
+  iframe.src = '';
+  clearTimeout(viewerTimer);
+
   // Ensure HTTPS
   let cleanUrl = url.replace('http://', 'https://');
 
-  // Handle Google Drive links
+  // Logic: Some browsers block direct iframes, Google Viewer bypasses this.
   let embedUrl = cleanUrl;
   if (cleanUrl.includes('drive.google.com')) {
     embedUrl = cleanUrl.replace('/view', '/preview').replace('/edit', '/preview');
   } else {
-    // For Cloudinary and others, use Google Docs Viewer as a reliable proxy
-    // to bypass cross-origin and MIME type issues.
+    // Standard robust way to embed 3rd party PDFs
     embedUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(cleanUrl)}&embedded=true`;
   }
 
-  const iframe = document.getElementById('pdf-iframe');
+  // Set URLs
   iframe.src = embedUrl;
-
-  // Set "Open in New Tab" URL (Direct link)
+  if (fallbackLink) fallbackLink.href = cleanUrl;
   const newTabBtn = document.getElementById('viewer-newtab-btn');
   if (newTabBtn) newTabBtn.href = cleanUrl;
 
-  // Set download button URL
+  // Set download button
   const dlBtn = document.getElementById('viewer-download-btn');
   if (dlBtn) {
-    // Using the direct URL is the most reliable way.
-    // Setting target="_blank" and the "download" attribute
-    // lets the browser handle the best way to open or save the file.
-    dlBtn.href = cleanUrl;
+    dlBtn.href = cleanUrl.includes('res.cloudinary.com') ? cleanUrl.replace('/upload/', '/upload/fl_attachment/') : cleanUrl;
     dlBtn.setAttribute('download', title + '.pdf');
   }
+
+  // Handle Loading
+  iframe.onload = () => {
+    loading.style.display = 'none';
+    iframe.style.opacity = '1';
+    clearTimeout(viewerTimer);
+  };
+
+  // Fallback timer (if it takes > 6 seconds)
+  viewerTimer = setTimeout(() => {
+    if (loading.style.display !== 'none') {
+      loading.style.display = 'none';
+      fallback.style.display = 'flex';
+    }
+  }, 6000);
 
   modal.classList.add('open');
 };
@@ -172,6 +197,7 @@ window.openViewer = function(url, title) {
 document.getElementById('viewer-close')?.addEventListener('click', () => {
   document.getElementById('viewer-modal').classList.remove('open');
   document.getElementById('pdf-iframe').src = '';
+  clearTimeout(viewerTimer);
 });
 
 // ---- COPY UPI ----

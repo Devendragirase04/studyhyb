@@ -50,7 +50,7 @@ document.querySelectorAll('.sidebar-link').forEach(link => {
 });
 
 // ---- TOGGLE PRICE FIELD ----
-window.togglePriceField = function(val) {
+window.togglePriceField = function (val) {
   const pg = document.getElementById('price-group');
   if (pg) pg.style.display = val === 'paid' ? 'flex' : 'none';
 };
@@ -95,9 +95,9 @@ async function uploadToCloudinary(file) {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  formData.append('resource_type', 'auto');
+  formData.append('resource_type', 'raw');
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`, {
     method: 'POST',
     body: formData
   });
@@ -215,7 +215,7 @@ async function loadManagePDFs() {
 }
 
 // ---- DELETE PDF ----
-window.deletePDF = async function(id, btn) {
+window.deletePDF = async function (id, btn) {
   if (!confirm('Delete this PDF? This cannot be undone.')) return;
   try {
     btn.textContent = 'Deleting...';

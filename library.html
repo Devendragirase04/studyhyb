@@ -146,8 +146,16 @@
           <button class="modal-close" id="viewer-close" style="position: relative; top: 0; right: 0;">✕</button>
         </div>
       </div>
-      <div class="pdf-viewer-container">
+      <div class="pdf-viewer-container" id="pdf-viewer-container">
+        <div class="viewer-loading" id="viewer-loading">
+          <div class="spinner"></div>
+          <p>Loading PDF preview...</p>
+        </div>
         <iframe id="pdf-iframe" src="" frameborder="0" allowfullscreen></iframe>
+        <div class="viewer-fallback" id="viewer-fallback" style="display:none;">
+          <p>The preview is taking longer than expected.</p>
+          <a href="#" id="viewer-fallback-link" class="btn btn-primary" target="_blank">Open PDF Directly</a>
+        </div>
       </div>
     </div>
   </div>
