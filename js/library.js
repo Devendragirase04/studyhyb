@@ -153,13 +153,15 @@ window.openViewer = function(url, title) {
 
   // Ensure HTTPS
   let cleanUrl = url.replace('http://', 'https://');
+  console.log('Opening PDF:', cleanUrl);
 
-  // Logic: Some browsers block direct iframes, Google Viewer bypasses this.
+  // Logic: Direct native embed is fastest and best for most desktops.
+  // Google Viewer is a fallback for browsers that try to download PDFs instead of showing them.
   let embedUrl = cleanUrl;
   if (cleanUrl.includes('drive.google.com')) {
     embedUrl = cleanUrl.replace('/view', '/preview').replace('/edit', '/preview');
-  } else {
-    // Standard robust way to embed 3rd party PDFs
+  } else if (!cleanUrl.toLowerCase().endsWith('.pdf') && !cleanUrl.includes('res.cloudinary.com')) {
+    // If it's not a direct .pdf and not Cloudinary, Google Viewer is safer
     embedUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(cleanUrl)}&embedded=true`;
   }
 
@@ -169,25 +171,39 @@ window.openViewer = function(url, title) {
   const newTabBtn = document.getElementById('viewer-newtab-btn');
   if (newTabBtn) newTabBtn.href = cleanUrl;
 
-  // Set download button
+  // Set download button with robust Cloudinary fl_attachment logic
   const dlBtn = document.getElementById('viewer-download-btn');
   if (dlBtn) {
-    dlBtn.href = cleanUrl.includes('res.cloudinary.com') ? cleanUrl.replace('/upload/', '/upload/fl_attachment/') : cleanUrl;
+    let dlUrl = cleanUrl;
+    if (cleanUrl.includes('res.cloudinary.com')) {
+      // Add fl_attachment for both /image/ and /raw/ uploads
+      if (cleanUrl.includes('/upload/')) {
+        dlUrl = cleanUrl.replace('/upload/', '/upload/fl_attachment/');
+      } else if (cleanUrl.includes('/raw/upload/')) {
+        dlUrl = cleanUrl.replace('/raw/upload/', '/raw/upload/fl_attachment/');
+      }
+    }
+    dlBtn.href = dlUrl;
     dlBtn.setAttribute('download', title + '.pdf');
   }
 
-  // Handle Loading
+  // Handle Loading success
   iframe.onload = () => {
     loading.style.display = 'none';
     iframe.style.opacity = '1';
     clearTimeout(viewerTimer);
   };
 
-  // Fallback timer (if it takes > 6 seconds)
+  // Fallback timer (6 seconds)
   viewerTimer = setTimeout(() => {
     if (loading.style.display !== 'none') {
       loading.style.display = 'none';
       fallback.style.display = 'flex';
+      // As a last-ditch effort for the preview, try switching to Google Viewer
+      if (embedUrl === cleanUrl && !cleanUrl.includes('drive.google.com')) {
+        console.log('Native embed failed/slow, switching to Google Viewer fallback...');
+        iframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(cleanUrl)}&embedded=true`;
+      }
     }
   }, 6000);
 
