@@ -8,8 +8,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // ⚠️ SET YOUR CLOUDINARY DETAILS HERE
-const CLOUDINARY_CLOUD_NAME = 'YOUR_CLOUD_NAME';
-const CLOUDINARY_UPLOAD_PRESET = 'YOUR_UPLOAD_PRESET';
+const CLOUDINARY_CLOUD_NAME = 'dzfpkg63z';
+const CLOUDINARY_UPLOAD_PRESET = 'faeeys12';
 
 const loginScreen = document.getElementById('login-screen');
 const dashboard = document.getElementById('admin-dashboard');

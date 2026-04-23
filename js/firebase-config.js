@@ -8,12 +8,13 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-aut
 
 // ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDUtIfIvMxv1AgiiyNinw2vQxdCQyz3b_w",
+  authDomain: "studyhub-app-7f99f.firebaseapp.com",
+  projectId: "studyhub-app-7f99f",
+  storageBucket: "studyhub-app-7f99f.firebasestorage.app",
+  messagingSenderId: "622534039034",
+  appId: "1:622534039034:web:b302c8e8eaa68015aa4043",
+  measurementId: "G-JC9G1F1T03"
 };
 
 const app = initializeApp(firebaseConfig);
