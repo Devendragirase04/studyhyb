@@ -130,34 +130,42 @@ document.getElementById('payment-modal')?.addEventListener('click', (e) => {
 // ---- PDF VIEWER ----
 window.openViewer = function(url, title) {
   if (!url) {
-    alert('PDF URL not configured. Please add it from the Admin Panel.');
+    alert('PDF URL not configured.');
     return;
   }
   const modal = document.getElementById('viewer-modal');
   document.getElementById('viewer-title').textContent = title;
   
   // Ensure HTTPS
-  if (url.startsWith('http://')) url = url.replace('http://', 'https://');
+  let cleanUrl = url.replace('http://', 'https://');
 
-  // Use Google Docs Viewer for the most reliable "seamless" preview
-  // It handles cross-origin and MIME type issues better than a direct iframe
-  const encodedUrl = encodeURIComponent(url);
-  const viewerUrl = `https://docs.google.com/viewer?url=${encodedUrl}&embedded=true`;
-  
-  document.getElementById('pdf-iframe').src = viewerUrl;
+  // Handle Google Drive links
+  let embedUrl = cleanUrl;
+  if (cleanUrl.includes('drive.google.com')) {
+    embedUrl = cleanUrl.replace('/view', '/preview').replace('/edit', '/preview');
+  } else {
+    // For Cloudinary and others, use Google Docs Viewer as a reliable proxy
+    // to bypass cross-origin and MIME type issues.
+    embedUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(cleanUrl)}&embedded=true`;
+  }
 
-  // Set "Open in New Tab" URL (direct link)
+  const iframe = document.getElementById('pdf-iframe');
+  iframe.src = embedUrl;
+
+  // Set "Open in New Tab" URL (Direct link)
   const newTabBtn = document.getElementById('viewer-newtab-btn');
-  if (newTabBtn) newTabBtn.href = url;
+  if (newTabBtn) newTabBtn.href = cleanUrl;
 
   // Set download button URL
   const dlBtn = document.getElementById('viewer-download-btn');
   if (dlBtn) {
-    let dlUrl = url;
-    // Force download for Cloudinary URLs
-    if (url.includes('res.cloudinary.com')) {
-      // Works for both /image/ and /raw/ resource types
-      dlUrl = url.replace('/upload/', '/upload/fl_attachment/');
+    let dlUrl = cleanUrl;
+    if (cleanUrl.includes('res.cloudinary.com')) {
+      // Cloudinary Download Trick: insert /fl_attachment/ into the URL
+      // This works for both /image/upload and /raw/upload
+      if (cleanUrl.includes('/upload/')) {
+        dlUrl = cleanUrl.replace('/upload/', '/upload/fl_attachment/');
+      }
     }
     dlBtn.href = dlUrl;
     dlBtn.setAttribute('download', title + '.pdf');
