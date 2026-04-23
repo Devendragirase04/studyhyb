@@ -136,18 +136,35 @@ window.openViewer = function(url, title) {
   const modal = document.getElementById('viewer-modal');
   document.getElementById('viewer-title').textContent = title;
   
-  // Display PDF directly in the iframe (works best for modern browsers)
-  document.getElementById('pdf-iframe').src = url;
+  // Ensure HTTPS to prevent mixed-content blocks
+  if (url.startsWith('http://')) url = url.replace('http://', 'https://');
+
+  // Format Google Drive links for embedding
+  let embedUrl = url;
+  if (url.includes('drive.google.com')) {
+    embedUrl = url.replace('/view', '/preview').replace('/edit', '/preview');
+  }
+
+  // Display PDF directly in the iframe
+  document.getElementById('pdf-iframe').src = embedUrl;
+
+  // Set "Open in New Tab" URL
+  const newTabBtn = document.getElementById('viewer-newtab-btn');
+  if (newTabBtn) newTabBtn.href = url;
 
   // Set download button URL
   const dlBtn = document.getElementById('viewer-download-btn');
-  if(dlBtn) {
+  if (dlBtn) {
     let dlUrl = url;
     // Force download for Cloudinary URLs by adding fl_attachment
     if (url.includes('res.cloudinary.com')) {
-      dlUrl = url.replace('/upload/', '/upload/fl_attachment/');
+      const parts = url.split('/upload/');
+      if (parts.length === 2) {
+        dlUrl = `${parts[0]}/upload/fl_attachment/${parts[1]}`;
+      }
     }
     dlBtn.href = dlUrl;
+    dlBtn.setAttribute('download', title + '.pdf');
   }
 
   modal.classList.add('open');
