@@ -159,15 +159,10 @@ window.openViewer = function(url, title) {
   // Set download button URL
   const dlBtn = document.getElementById('viewer-download-btn');
   if (dlBtn) {
-    let dlUrl = cleanUrl;
-    if (cleanUrl.includes('res.cloudinary.com')) {
-      // Cloudinary Download Trick: insert /fl_attachment/ into the URL
-      // This works for both /image/upload and /raw/upload
-      if (cleanUrl.includes('/upload/')) {
-        dlUrl = cleanUrl.replace('/upload/', '/upload/fl_attachment/');
-      }
-    }
-    dlBtn.href = dlUrl;
+    // Using the direct URL is the most reliable way.
+    // Setting target="_blank" and the "download" attribute
+    // lets the browser handle the best way to open or save the file.
+    dlBtn.href = cleanUrl;
     dlBtn.setAttribute('download', title + '.pdf');
   }
 
