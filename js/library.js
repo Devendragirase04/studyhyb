@@ -135,9 +135,21 @@ window.openViewer = function(url, title) {
   }
   const modal = document.getElementById('viewer-modal');
   document.getElementById('viewer-title').textContent = title;
-  // Use Google Docs viewer as fallback for cross-origin PDFs
-  const viewerUrl = url.endsWith('.pdf') ? `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true` : url;
-  document.getElementById('pdf-iframe').src = viewerUrl;
+  
+  // Display PDF directly in the iframe (works best for modern browsers)
+  document.getElementById('pdf-iframe').src = url;
+
+  // Set download button URL
+  const dlBtn = document.getElementById('viewer-download-btn');
+  if(dlBtn) {
+    let dlUrl = url;
+    // Force download for Cloudinary URLs by adding fl_attachment
+    if (url.includes('res.cloudinary.com')) {
+      dlUrl = url.replace('/upload/', '/upload/fl_attachment/');
+    }
+    dlBtn.href = dlUrl;
+  }
+
   modal.classList.add('open');
 };
 

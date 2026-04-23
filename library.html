@@ -140,7 +140,10 @@
     <div class="modal modal-viewer" role="dialog" aria-modal="true">
       <div class="viewer-header">
         <h3 id="viewer-title">PDF Viewer</h3>
-        <button class="modal-close" id="viewer-close">✕</button>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <a href="#" id="viewer-download-btn" class="btn btn-primary" target="_blank" download style="padding: 6px 12px; font-size: 0.8rem; height: auto;">📥 Download</a>
+          <button class="modal-close" id="viewer-close" style="position: relative; top: 0; right: 0;">✕</button>
+        </div>
       </div>
       <div class="pdf-viewer-container">
         <iframe id="pdf-iframe" src="" frameborder="0" allowfullscreen></iframe>
