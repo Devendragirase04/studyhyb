@@ -136,19 +136,17 @@ window.openViewer = function(url, title) {
   const modal = document.getElementById('viewer-modal');
   document.getElementById('viewer-title').textContent = title;
   
-  // Ensure HTTPS to prevent mixed-content blocks
+  // Ensure HTTPS
   if (url.startsWith('http://')) url = url.replace('http://', 'https://');
 
-  // Format Google Drive links for embedding
-  let embedUrl = url;
-  if (url.includes('drive.google.com')) {
-    embedUrl = url.replace('/view', '/preview').replace('/edit', '/preview');
-  }
+  // Use Google Docs Viewer for the most reliable "seamless" preview
+  // It handles cross-origin and MIME type issues better than a direct iframe
+  const encodedUrl = encodeURIComponent(url);
+  const viewerUrl = `https://docs.google.com/viewer?url=${encodedUrl}&embedded=true`;
+  
+  document.getElementById('pdf-iframe').src = viewerUrl;
 
-  // Display PDF directly in the iframe
-  document.getElementById('pdf-iframe').src = embedUrl;
-
-  // Set "Open in New Tab" URL
+  // Set "Open in New Tab" URL (direct link)
   const newTabBtn = document.getElementById('viewer-newtab-btn');
   if (newTabBtn) newTabBtn.href = url;
 
@@ -156,12 +154,10 @@ window.openViewer = function(url, title) {
   const dlBtn = document.getElementById('viewer-download-btn');
   if (dlBtn) {
     let dlUrl = url;
-    // Force download for Cloudinary URLs by adding fl_attachment
+    // Force download for Cloudinary URLs
     if (url.includes('res.cloudinary.com')) {
-      const parts = url.split('/upload/');
-      if (parts.length === 2) {
-        dlUrl = `${parts[0]}/upload/fl_attachment/${parts[1]}`;
-      }
+      // Works for both /image/ and /raw/ resource types
+      dlUrl = url.replace('/upload/', '/upload/fl_attachment/');
     }
     dlBtn.href = dlUrl;
     dlBtn.setAttribute('download', title + '.pdf');
